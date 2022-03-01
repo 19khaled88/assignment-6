@@ -16,9 +16,90 @@ const searchMobile = () =>{
                 .then(data => displayingMobiles(data.data))
         }
     }
-const displayingMobiles = mobile =>{
-    console.log(mobile);
+
+
+const displayingMobiles = mobiles =>{
+    for(let mobile of mobiles){
+        console.log(mobile);
+        const allPhone = document.getElementById('proResult');
+        const catchDiv = document.getElementById('productResults');
+        // console.log(allPhone.getElementsByTagName("img")[0].attributes("src"));
+        
+
+        //child div creation
+        var parentDiv = document.createElement('div');
+        parentDiv.classList.add('border');
+        parentDiv.classList.add('border-1');
+        parentDiv.classList.add('rounded-3');
+        parentDiv.classList.add('mx-2');
+        parentDiv.classList.add('col-4');
+        parentDiv.classList.add('col-sm-12');
+        parentDiv.classList.add('col-md-4');
+        parentDiv.style.width="18rem";
+        catchDiv.appendChild(parentDiv)
+
+        //child img tag creation
+        var img = document.createElement('img');
+        img.style.width="150px";
+        img.style.height="170px";
+        img.src = `${mobile.image}`;
+        img.classList.add('card-img-top');
+        img.classList.add('justify-content-center');
+        img.classList.add('mx-auto');
+        img.classList.add('mt-2');
+        img.classList.add('d-flex');
+        // img.attributes.add('...');
+        parentDiv.appendChild(img);
+        
+
+        //again child inside parent div
+        var childDiv = document.createElement('div');
+        childDiv.classList.add('card-body');
+        childDiv.classList.add('p-1');
+        childDiv.classList.add('mb-2');
+        parentDiv.appendChild(childDiv);
+
+        //child h tag inside child div
+        var childHTag = document.createElement('h5');
+        childHTag.classList.add('card-title');
+        const textNode1 = document.createTextNode(`${mobile.brand}`);
+        childHTag.appendChild(textNode1);
+        childDiv.appendChild(childHTag);
+
+        //child p tag inside child div
+        var childPTag = document.createElement('p');
+        childPTag.classList.add('card-text');
+        const textNode2 = document.createTextNode(`${mobile.phone_name}`);
+        childPTag.appendChild(textNode2);
+        childDiv.appendChild(childPTag);
+
+        //inner child div tag inside child div
+        var innerChildDiv = document.createElement('div');
+        innerChildDiv.classList.add('d-flex');
+        innerChildDiv.classList.add('justify-content-between');
+        childDiv.appendChild(innerChildDiv);
+
+        //inner p tag
+        var innerPTag = document.createElement('p');
+        const textNode3 = document.createTextNode(`$12000`);
+        innerPTag.appendChild(textNode3);
+        innerChildDiv.appendChild(innerPTag);
+
+        // create element button
+        var aTag = document.createElement('a');
+        aTag.classList.add('btn');
+        aTag.classList.add('btn-primary');
+        aTag.id = "detailsId";
+        aTag.setAttribute("onclick", "detailsOnClick()")
+        aTag.href = `${mobile.slug}`;
+        var buttonText = document.createTextNode('Details');
+        aTag.appendChild(buttonText);
+        innerChildDiv.appendChild(aTag);
+    }
 }
 
 
-
+function detailsOnClick() {
+   const slug =  document.getElementById('detailsId').getAttribute('href');
+   
+} 
