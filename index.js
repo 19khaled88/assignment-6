@@ -41,15 +41,23 @@ const emptyError=()=>{
 }
 // Load all search result
 const displayingMobiles = mobiles =>{
+    
+    if(mobiles.length > 30){
+        var mobiles = mobiles.splice(0, 30).map(data =>{
+           return data;
+        })
+        webView(mobiles);
+    }else{
+        webView(mobiles)
+    } 
    
+}
+
+const webView = (mobiles) =>{
     for(let mobile of mobiles){
-        
-        // const allPhone = document.getElementById('proResult');
         const allPhone = document.getElementById('productResults');
-       
         allPhone.classList.add('d-flex');
         allPhone.classList.remove('d-none');
-        
         //child div creation
         var parentDiv = document.createElement('div');
         parentDiv.classList.add('border');
@@ -128,24 +136,30 @@ const displayingMobiles = mobiles =>{
 
 // Showing single product details
 const detailsOnClick =() =>{
+         
          const slug =  document.getElementsByClassName('buttonClass')[0].id;
          if(slug !== ""){
+            
             const allPhone = document.getElementById('productResults');
             allPhone.classList.add('d-none');
             allPhone.classList.remove('d-flex')
             fetch(`https://openapi.programming-hero.com/api/phone/${slug}`)
             .then(res => res.json())
             .then(data => singleDataDetails(data.data));
-         }  
+            
+         }else{
+            
+         }
 } 
 
 // Cleaning all previous search result
 const singleDataDetails =(data)=>{
     console.log(data)
-        const {chipSet,displaySize,memory,sensors,storage} = data.mainFeatures;
-        const {Bluetooth,GPS,NFC,Radio,USB,WLAN} = data.others;
-        const singleData = document.getElementById('singleData');
-        singleData.innerHTML = `
+    const singleData = document.getElementById('singleData');
+        if(data.others){
+            const {chipSet,displaySize,memory,sensors,storage} = data.mainFeatures;
+            const {Bluetooth,GPS,NFC,Radio,USB,WLAN} = data.others;
+            singleData.innerHTML = `
             <h3 class="d-flex pb-3 justify-content-center mx-auto" >${data.brand}</h3>
             <img class="d-flex pb-3 justify-content-center mx-auto" src="${data.image}"  alt="..."/>
             <h4 class="d-flex pb-3 justify-content-center mx-auto">${data.name} - full Specification</h4>
@@ -153,13 +167,12 @@ const singleDataDetails =(data)=>{
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Advance Features</th>
-                       
+                        <th scope="col">Advance Features</th>  
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <th scope="row">Chipset</th>
+                        <th scope="row">Chip set</th>
                         <td>${chipSet}</td>
                     </tr>
                     <tr>
@@ -172,7 +185,7 @@ const singleDataDetails =(data)=>{
                     </tr>
                     <tr>
                         <th scope="row">Release Date</th>
-                        <td>${data.releaseDate !== "" ? data.releaseDate : 'no realse date'}</td>
+                        <td>${data.releaseDate !== "" ? data.releaseDate : 'no release date'}</td>
                     </tr>
                     <tr>
                         <th scope="row">Sensors</th>
@@ -185,46 +198,92 @@ const singleDataDetails =(data)=>{
                         <td>${storage}</td>
                     </tr>
                 </tbody>
-            </table> 
+            </table>  
+            <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Others</th>
+                   
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">Bluetooth</th>
+                    <td>${Bluetooth}</td>
+                </tr>
+                <tr>
+                    <th scope="row">GPS</th>
+                    <td>${GPS}</td>
+                </tr>
+                <tr>
+                    <th scope="row">NFC</th>
+                    <td>${NFC}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Radio</th>
+                    <td>${Radio}</td>
+                </tr>
+                <tr>
+                    <th scope="row">USB</th>
+                    <td>
+                    ${USB}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">WLAN</th>
+                    <td>${WLAN}</td>
+                </tr>
+            </tbody>
+        </table> 
 
+        `
+        }else{
+            const {chipSet,displaySize,memory,sensors,storage} = data.mainFeatures;
+            singleData.innerHTML = `
+            <h3 class="d-flex pb-3 justify-content-center mx-auto" >${data.brand}</h3>
+            <img class="d-flex pb-3 justify-content-center mx-auto" src="${data.image}"  alt="..."/>
+            <h4 class="d-flex pb-3 justify-content-center mx-auto">${data.name} - full Specification</h4>
             <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Others</th>
-                       
+                        <th scope="col">Advance Features</th>  
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <th scope="row">Bluetooth</th>
-                        <td>${Bluetooth}</td>
+                        <th scope="row">Chip set</th>
+                        <td>${chipSet}</td>
                     </tr>
                     <tr>
-                        <th scope="row">GPS</th>
-                        <td>${GPS}</td>
+                        <th scope="row">Display Size</th>
+                        <td>${displaySize}</td>
                     </tr>
                     <tr>
-                        <th scope="row">NFC</th>
-                        <td>${NFC}</td>
+                        <th scope="row">Memory Size</th>
+                        <td>${memory}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Radio</th>
-                        <td>${Radio}</td>
+                        <th scope="row">Release Date</th>
+                        <td>${data.releaseDate !== "" ? data.releaseDate : 'no release date'}</td>
                     </tr>
                     <tr>
-                        <th scope="row">USB</th>
+                        <th scope="row">Sensors</th>
                         <td>
-                        ${USB}
+                        ${sensors.map(i=> `${i}`)}
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">WLAN</th>
-                        <td>${WLAN}</td>
+                        <th scope="row">Storage</th>
+                        <td>${storage}</td>
                     </tr>
                 </tbody>
-            </table> 
+            </table>  
         `
+        }
+        
+        
 }
 
 const errorMessage=()=>{
@@ -239,4 +298,10 @@ const errorTimeout=()=>{
     errorMessage.classList.add('d-none');
     errorMessage.classList.remove('d-flex');
 }
+
+
+  
+         
+           
+
 
