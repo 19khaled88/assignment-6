@@ -21,8 +21,10 @@ const searchMobile = () =>{
 const displayingMobiles = mobiles =>{
     for(let mobile of mobiles){
         console.log(mobile);
-        const allPhone = document.getElementById('proResult');
-        const catchDiv = document.getElementById('productResults');
+        // const allPhone = document.getElementById('proResult');
+        const allPhone = document.getElementById('productResults');
+        allPhone.classList.add('d-flex');
+        allPhone.classList.remove('d-none');
         // console.log(allPhone.getElementsByTagName("img")[0].attributes("src"));
         
 
@@ -36,7 +38,7 @@ const displayingMobiles = mobiles =>{
         parentDiv.classList.add('col-sm-12');
         parentDiv.classList.add('col-md-4');
         parentDiv.style.width="18rem";
-        catchDiv.appendChild(parentDiv)
+        allPhone.appendChild(parentDiv)
 
         //child img tag creation
         var img = document.createElement('img');
@@ -62,6 +64,7 @@ const displayingMobiles = mobiles =>{
         //child h tag inside child div
         var childHTag = document.createElement('h5');
         childHTag.classList.add('card-title');
+        childHTag.id = "cardId";
         const textNode1 = document.createTextNode(`${mobile.brand}`);
         childHTag.appendChild(textNode1);
         childDiv.appendChild(childHTag);
@@ -86,20 +89,58 @@ const displayingMobiles = mobiles =>{
         innerChildDiv.appendChild(innerPTag);
 
         // create element button
-        var aTag = document.createElement('a');
-        aTag.classList.add('btn');
-        aTag.classList.add('btn-primary');
-        aTag.id = "detailsId";
-        aTag.setAttribute("onclick", "detailsOnClick()")
-        aTag.href = `${mobile.slug}`;
+        // var aTag = document.createElement('a');
+        // aTag.classList.add('btn');
+        // aTag.classList.add('btn-primary');
+        // aTag.id = "detailsId";
+        // aTag.setAttribute("onclick", "detailsOnClick()")
+        // aTag.href = `${mobile.slug}`;
+        // var buttonText = document.createTextNode('Details');
+        // aTag.appendChild(buttonText);
+        // innerChildDiv.appendChild(aTag);
+
+        //create element button
+        var buttonTag = document.createElement('button');
+        buttonTag.classList.add('btn');
+        buttonTag.classList.add('btn-primary');
+        buttonTag.classList.add('buttonClass');
+        // buttonTag.id="buttonId";
+        buttonTag.setAttribute("onclick", "detailsOnClick()");
+        buttonTag.id = `${mobile.slug}`;
         var buttonText = document.createTextNode('Details');
-        aTag.appendChild(buttonText);
-        innerChildDiv.appendChild(aTag);
+        buttonTag.appendChild(buttonText);
+        innerChildDiv.appendChild(buttonTag);
     }
 }
 
 
-function detailsOnClick() {
-   const slug =  document.getElementById('detailsId').getAttribute('href');
-   
+const detailsOnClick =() =>{
+//    const slug =  document.getElementById('detailsId').getAttribute('href');
+const slug =  document.getElementsByClassName('buttonClass')[0].id;
+  
+    if(slug !== ""){
+        // alert(slug)
+        const cardTitle = document.getElementById('cardId').innerText;
+        fetch(`https://openapi.programming-hero.com/api/phones?search=${cardTitle}`)
+                    .then(res => res.json())
+                    .then(data => singlePhone(data.data))
+                    
+    }else{
+        alert('nothing found');
+    }
+
+    const singlePhone =detailForPhone=>{
+        for(singleDetail of detailForPhone){
+           if(slug === singleDetail.slug){
+            const allPhone = document.getElementById('productResults');
+            allPhone.classList.add('d-none');
+            allPhone.classList.remove('d-flex')
+            console.log('data found');
+           }else{
+               return false; 
+           }
+        }
+    }
 } 
+
+
