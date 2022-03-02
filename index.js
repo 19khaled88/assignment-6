@@ -1,38 +1,54 @@
 
 
-const searchMobile = () =>{
+const searchMobile = async () =>{
     const searchText = document.getElementById('searchText');
+    const allPhone = document.getElementById('productResults');
+    const singleData = document.getElementById('singleData');
+    allPhone.innerHTML = '';
+    singleData.innerHTML = '';
     const foundText = searchText.value;
         if(foundText == ""){
             const textMessage = document.getElementById('textMessage');
             textMessage.classList.remove('d-none')
             textMessage.classList.add('d-flex')
+            const blinkMessage = document.getElementById('blinkMessage');
+            blinkMessage.innerText = `Search field is empty!`
+            
         }else{
             const textMessage = document.getElementById('textMessage');
             textMessage.classList.remove('d-flex')
             textMessage.classList.add('d-none')
-            fetch(`https://openapi.programming-hero.com/api/phones?search=${foundText}`)
-                .then(res => res.json())
-                .then(data => displayingMobiles(data.data))
+            const url = `https://openapi.programming-hero.com/api/phones?search=${foundText}`;
+            const res = await fetch(url);
+            if(res.ok){
+                const data = await res.json();
+                data.status === true ? displayingMobiles(data.data) : errorMessage();    
+            }else{
+                return false;
+            }     
         }
+        searchText.value = ""
     }
 
-
+// Load all search result
 const displayingMobiles = mobiles =>{
+   
     for(let mobile of mobiles){
-        console.log(mobile);
+        
         // const allPhone = document.getElementById('proResult');
         const allPhone = document.getElementById('productResults');
+       
         allPhone.classList.add('d-flex');
         allPhone.classList.remove('d-none');
-        // console.log(allPhone.getElementsByTagName("img")[0].attributes("src"));
         
 
+        
         //child div creation
         var parentDiv = document.createElement('div');
         parentDiv.classList.add('border');
         parentDiv.classList.add('border-1');
         parentDiv.classList.add('rounded-3');
+        parentDiv.classList.add('removeDiv');
         parentDiv.classList.add('mx-2');
         parentDiv.classList.add('col-4');
         parentDiv.classList.add('col-sm-12');
@@ -52,7 +68,6 @@ const displayingMobiles = mobiles =>{
         img.classList.add('d-flex');
         // img.attributes.add('...');
         parentDiv.appendChild(img);
-        
 
         //again child inside parent div
         var childDiv = document.createElement('div');
@@ -88,22 +103,12 @@ const displayingMobiles = mobiles =>{
         innerPTag.appendChild(textNode3);
         innerChildDiv.appendChild(innerPTag);
 
-        // create element button
-        // var aTag = document.createElement('a');
-        // aTag.classList.add('btn');
-        // aTag.classList.add('btn-primary');
-        // aTag.id = "detailsId";
-        // aTag.setAttribute("onclick", "detailsOnClick()")
-        // aTag.href = `${mobile.slug}`;
-        // var buttonText = document.createTextNode('Details');
-        // aTag.appendChild(buttonText);
-        // innerChildDiv.appendChild(aTag);
-
         //create element button
         var buttonTag = document.createElement('button');
         buttonTag.classList.add('btn');
         buttonTag.classList.add('btn-primary');
         buttonTag.classList.add('buttonClass');
+
         // buttonTag.id="buttonId";
         buttonTag.setAttribute("onclick", "detailsOnClick()");
         buttonTag.id = `${mobile.slug}`;
@@ -111,36 +116,115 @@ const displayingMobiles = mobiles =>{
         buttonTag.appendChild(buttonText);
         innerChildDiv.appendChild(buttonTag);
     }
+    
 }
 
-
+// Showing single product details
 const detailsOnClick =() =>{
-//    const slug =  document.getElementById('detailsId').getAttribute('href');
-const slug =  document.getElementsByClassName('buttonClass')[0].id;
-  
-    if(slug !== ""){
-        // alert(slug)
-        const cardTitle = document.getElementById('cardId').innerText;
-        fetch(`https://openapi.programming-hero.com/api/phones?search=${cardTitle}`)
-                    .then(res => res.json())
-                    .then(data => singlePhone(data.data))
-                    
-    }else{
-        alert('nothing found');
-    }
-
-    const singlePhone =detailForPhone=>{
-        for(singleDetail of detailForPhone){
-           if(slug === singleDetail.slug){
+         const slug =  document.getElementsByClassName('buttonClass')[0].id;
+         if(slug !== ""){
             const allPhone = document.getElementById('productResults');
             allPhone.classList.add('d-none');
             allPhone.classList.remove('d-flex')
-            console.log('data found');
-           }else{
-               return false; 
-           }
-        }
-    }
+            fetch(`https://openapi.programming-hero.com/api/phone/${slug}`)
+            .then(res => res.json())
+            .then(data => singleDataDetails(data.data));
+         }  
 } 
 
+// Cleaning all previous search result
+const singleDataDetails =(data)=>{
+    console.log(data)
+        const {chipSet,displaySize,memory,sensors,storage} = data.mainFeatures;
+        const {Bluetooth,GPS,NFC,Radio,USB,WLAN} = data.others;
+        const singleData = document.getElementById('singleData');
+        singleData.innerHTML = `
+            <h3 class="d-flex pb-3 justify-content-center mx-auto" >${data.brand}</h3>
+            <img class="d-flex pb-3 justify-content-center mx-auto" src="${data.image}"  alt="..."/>
+            <h4 class="d-flex pb-3 justify-content-center mx-auto">${data.name} - full Specification</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Advance Features</th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Chipset</th>
+                        <td>${chipSet}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Display Size</th>
+                        <td>${displaySize}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Memory Size</th>
+                        <td>${memory}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Release Date</th>
+                        <td>${data.releaseDate !== "" ? data.releaseDate : 'no realse date'}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Sensors</th>
+                        <td>
+                        ${sensors.map(i=> `${i}`)}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Storage</th>
+                        <td>${storage}</td>
+                    </tr>
+                </tbody>
+            </table> 
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Others</th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Bluetooth</th>
+                        <td>${Bluetooth}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">GPS</th>
+                        <td>${GPS}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">NFC</th>
+                        <td>${NFC}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Radio</th>
+                        <td>${Radio}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">USB</th>
+                        <td>
+                        ${USB}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">WLAN</th>
+                        <td>${WLAN}</td>
+                    </tr>
+                </tbody>
+            </table> 
+        `
+}
+
+const errorMessage=()=>{
+    const errorMessage = document.getElementById('textMessage');
+ 
+    errorMessage.classList.remove('d-none');
+    errorMessage.classList.add('d-flex');
+    errorMessage.innerHTML =`<blink style="color: red;" id="blinkMessage">Search string not match!<span style="color: black;" id="blinkMessage">Search for like iphone, samsung, oppo</span></blink>`;    
+}
 
